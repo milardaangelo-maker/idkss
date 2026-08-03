@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sunset Motocross - Cel Shaded Arcade Racing</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            overflow: hidden;
+            background: #000;
+            font-family: 'Arial Black', sans-serif;
+        }
+        canvas {
+            display: block;
+        }
+        #hud {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            display: none;
+        }
+        #hud.active {
+            display: block;
+        }
+        .hud-element {
+            position: absolute;
+            text-shadow: 2px 2px 0 #1a0a2e, -1px -1px 0 #ff6b35;
+        }
+        #speedometer {
+            bottom: 30px;
+            right: 30px;
+            font-size: 48px;
+            color: #ff6b35;
+        }
+        #speed-label {
+            font-size: 18px;
+            color: #00d4aa;
+            display: block;
+        }
+        #position {
+            top: 30px;
+            right: 30px;
+            font-size: 64px;
+            color: #ff6b35;
+        }
+        #position-label {
+            font-size: 20px;
+            color: #00d4aa;
+            display: block;
+        }
+        #lap-counter {
+            top: 30px;
+            left: 30px;
+            font-size: 36px;
+            color: #ff6b35;
+        }
+        #boost-meter {
+            bottom: 30px;
+            left: 30px;
+            width: 200px;
+            height: 20px;
+            border: 3px solid #ff6b35;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        #boost-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #00d4aa, #ff6b35);
+            transition: width 0.1s;
+        }
+        #minimap {
+            bottom: 70px;
+            left: 30px;
+            width: 180px;
+            height: 120px;
+            border: 3px solid #ff6b35;
+            border-radius: 10px;
+            background: rgba(26, 10, 46, 0.8);
+        }
+        #countdown {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 144px;
+            color: #ff6b35;
+            text-shadow: 4px 4px 0 #1a0a2e, -2px -2px 0 #00d4aa;
+            display: none;
+        }
+        #countdown.active {
+            display: block;
+            animation: pulse 0.5s ease-in-out;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.2); }
+        }
+        #results {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(26, 10, 46, 0.95);
+            border: 4px solid #ff6b35;
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            display: none;
+            pointer-events: auto;
+        }
+        #results.active {
+            display: block;
+        }
+        #results h2 {
+            font-size: 48px;
+            color: #ff6b35;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 0 #1a0a2e;
+        }
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 20px;
+            font-size: 24px;
+            color: #fff;
+            border-bottom: 2px solid #00d4aa;
+        }
+        .result-row:first-child {
+            color: #ff6b35;
+            font-size: 28px;
+        }
+        #restart-btn {
+            margin-top: 30px;
+            padding: 15px 40px;
+            font-size: 24px;
+            background: #ff6b35;
+            color: #1a0a2e;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: inherit;
+            text-transform: uppercase;
+        }
+        #restart-btn:hover {
+            background: #00d4aa;
+        }
+        #start-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, #1a0a2e 0%, #4a1a6e 50%, #ff6b35 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            pointer-events: auto;
+        }
+        #start-screen.hidden {
+            display: none;
+        }
+        #start-screen h1 {
+            font-size: 72px;
+            color: #ff6b35;
+            text-shadow: 4px 4px 0 #1a0a2e, -2px -2px 0 #00d4aa;
+            margin-bottom: 20px;
+        }
+        #start-screen p {
+            font-size: 24px;
+            color: #00d4aa;
+            margin-bottom: 40px;
+        }
+        #start-btn {
+            padding: 20px 60px;
+            font-size: 32px;
+            background: #ff6b35;
+            color: #1a0a2e;
+            border: 4px solid #00d4aa;
+            border-radius: 15px;
+            cursor: pointer;
+            font-family: inherit;
+            text-transform: uppercase;
+            transition: all 0.2s;
+        }
+        #start-btn:hover {
+            background: #00d4aa;
+            color: #ff6b35;
+            transform: scale(1.05);
+        }
+        .controls {
+            margin-top: 30px;
+            font-size: 18px;
+            color: #fff;
+            text-align: center;
+        }
+        .key {
+            display: inline-block;
+            padding: 5px 15px;
+            background: #1a0a2e;
+            border: 2px solid #00d4aa;
+            border-radius: 5px;
+            margin: 0 5px;
+        }
+    </style>
+</head>
+<body>
+    <div id="start-screen">
+        <h1>SUNSET MOTOCROSS</h1>
+        <p>Cel-Shaded Arcade Racing</p>
+        <button id="start-btn">START RACE</button>
+        <div class="controls">
+            <p><span class="key">W</span> / <span class="key">↑</span> Throttle &nbsp;|&nbsp; 
+               <span class="key">S</span> / <span class="key">↓</span> Brake &nbsp;|&nbsp;
+               <span class="key">A</span> / <span class="key">←</span> Left &nbsp;|&nbsp;
+               <span class="key">D</span> / <span class="key">→</span> Right</p>
+            <p><span class="key">SPACE</span> Jump &nbsp;|&nbsp; 
+               <span class="key">SHIFT</span> Boost</p>
+        </div>
+    </div>
+
+    <div id="hud">
+        <div id="lap-counter" class="hud-element">LAP <span id="current-lap">1</span>/3</div>
+        <div id="position" class="hud-element"><span id="current-pos">4</span><span id="position-label">/4</span></div>
+        <div id="speedometer" class="hud-element"><span id="speed-value">0</span><span id="speed-label"> KM/H</span></div>
+        <div id="boost-meter" class="hud-element"><div id="boost-fill"></div></div>
+        <canvas id="minimap" width="180" height="120"></canvas>
+        <div id="countdown">3</div>
+    </div>
+
+    <div id="results">
+        <h2>RACE COMPLETE</h2>
+        <div id="results-list"></div>
+        <button id="restart-btn">RACE AGAIN</button>
+    </div>
+
+    <script type="module" src="/src/main.ts"></script>
+</body>
+</html>
