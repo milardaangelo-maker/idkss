@@ -1,8 +1,71 @@
+```
+# Dependencies
 node_modules/
-build/
+node_modules/
+**/node_modules/
+
+# Build outputs
 dist/
+build/
+target/
 coverage/
-.DS_Store
+htmlcov/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+.ENV
+.env
+.env.local
+.env.*
+.mypy_cache/
+.pytest_cache/
+.coverage
+
+# Logs
 *.log
-.env*
-!.env.example
+
+# Environment specific
+.env.example
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*.tmp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Compressed
+*.zip
+*.gz
+*.tar
+*.tgz
+*.bz2
+*.xz
+*.7z
+*.rar
+*.zst
+*.lz4
+*.lzh
+*.cab
+*.arj
+*.rpm
+*.deb
+*.Z
+*.lz
+*.lzo
+*.tar.gz
+*.tar.bz2
+*.tar.xz
+*.tar.zst
+```
